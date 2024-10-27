@@ -61,4 +61,4 @@ int main()
 {% endhighlight %}
 
 执行结果如下：
-<img src="https://smileshineme.github.io//images/20241017/res.png">
+<img src="https://smileshineme.github.io/images/20241017/res.png">
