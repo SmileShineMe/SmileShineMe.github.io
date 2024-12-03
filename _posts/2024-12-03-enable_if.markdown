@@ -54,4 +54,4 @@ int main()
 Not Integral.
 Integral.
 ```
-调用print时，传入的参数是整数类型，第二个print定义被移除，第一个print被实例化并调用，传入参数不是证书类型市，第一个print定义被移除，第二个print被实例化并调用。
+调用print时，传入的参数是整数类型，第二个print定义被移除，第一个print被实例化并调用，传入参数不是整数类型时，第一个print定义被移除，第二个print被实例化并调用。
