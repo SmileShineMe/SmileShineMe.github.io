@@ -1,0 +1,57 @@
+---
+layout: post
+title:  "enable_if用法"
+date:   2024-12-03 23:07:34 +0800
+categories: jekyll update
+---
+std::enable_if定义于头文件<type_traits>中，其声明如下：
+```
+template<bool B, class T = void>
+struct enable_if;
+```
+在网站[cppreference](cppreference.com)中给出了一种可能的实现：
+```
+template<bool B, class T = void>
+struct enable_if {};
+
+template<typename T>
+struct enable_if<true, T> { typedef T type; };
+```
+当B为true时，enable_if有一个类型成员type, type的取值就是T。如果B为false，则没有名为type的成员，enable_if的典型用法是能够在特定条件下（B为false）移除模板候选集合中的元素。
+
+下面是一个例子
+```
+#include <iostream>
+#include <type_traits>
+using namespace std;
+
+template <typename T>
+typename enable_if<is_integral<T>::value>::type
+print(T t)
+{
+    cout << "Integral." << endl;
+}
+
+template <typename T>
+typename enable_if<!is_integral<T>::value>::type
+print(T t)
+{
+    cout << "Not Integral." << endl;
+}
+
+int main()
+{
+    print("str");
+    print(3);
+
+    return 0;
+}
+```
+执行结果如下：
+```
+~/cplus/enable_if_test# g++ -o enable_if_test enable_if_test.cpp -std=c++11
+~/cplus/enable_if_test# ./enable_if_test
+Not Integral.
+Integral.
+```
+调用print时，传入的参数是整数类型，第二个print定义被移除，第一个print被实例化并调用，传入参数不是证书类型市，第一个print定义被移除，第二个print被实例化并调用。
