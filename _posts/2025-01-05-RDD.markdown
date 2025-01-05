@@ -1,0 +1,97 @@
+---
+layout: post
+title:  "Spark RDD基本操作"
+date:   2025-01-05 09:00:00 +0800
+categories: jekyll update
+---
+RDD即弹性分布式数据集，是Spark对数据的核心抽象。RDD其实就是分布式的元素集合，在Spark中对数据的处理
+都是围绕着RDD进行的。创建RDD--转化RDD--操作RDD，这就是Spark对数据处理的所有流程了，使用RDD的好处
+在于，对RDD的操作会被Spark自动分发到集群上，将数据操作并行化。本文就简单介绍一下RDD的基本操作。
+
+## 创建RDD
+想要处理RDD，得先有RDD，在Spark中创建RDD有两种方式：1.通过外部数据集 2.在驱动器程序中对一个集合进行并行化。
+
+读取外部数据的典型场景就是读取数据文件，操作如下
+```
+lines = sc.textFile("README.txt")
+```
+这行代码就是在驱动器程序中通过读取文件的方式创建RDD，lines就是一个RDD对象。
+
+在驱动器程序中对一个集合进行操作方式如下：
+```
+lines = sc.parallelize(["pandas", "i like pandas"])
+```
+## RDD操作
+RDD支持两种操作：转化操作和行动操作。转化操作是从一个RDD得到另一个RDD，如数据过滤，数据集合操作。行动操作用来进行计算获得计算结果。一般情况下Spark采用惰性求值，数据直到需要时才进行计算，具体来说就是，转化操作不会真的影响数据，可能到行动操作时才会真正操作数据。举个例子，在转化操作中对数据进行过滤，行动操作中对过滤得到的数据进行计算，在数据量极大而过滤后得到的数据量很小的情况下就没有必要先去过滤数据了，可以在行动操作时只对满足条件的数据进行计算，这样就能提高效率了。
+### 转化操作
+转化操作就是返回新RDD的操做。下面的代码是用python过滤数据的操作，获得log.txt中包含字段"error"和"warn"的那些行。
+```
+inputRDD = sc.textFile("log.txt")
+errorsRDD = inputRDD.filter(lambda x: "error" in x)
+warningsRDD = inputRDD.filter(lambda x: "warn" in x)
+badLinesRDD = errorsRDD.union(warningsRDD)
+```
+### 行动操作
+行动操作进行数据计算，下列操作获取badLines中的10个数据
+```
+badLinesRDD.take(10)
+```
+## 常见的RDD操作
+### 针对各个元素的操作
+下面的代码使用python实现计算RDD中各个元素的平方
+```
+nums = sc.parallelize([1,2,3,4])
+squared = nums.map(lambda x: x * x).collect()
+```
+map会对每个元素进行括号中的函数计算，collect方法用于获取RDD中的数据，和take()方法类似。还有一个方法flatMap和map方法相似，但产生的结果有差异，举个例子，如下
+```
+lines = sc.parallelize(["hello world", "hi"])
+words1 = lines.flatMap(lambda line : line.split(" "))
+print(words1.first())
+words2 = lines.map(lambda line : line.split(" "))
+print(words2.first())
+```
+结果如下：
+```
+>>> words1.first()
+'hello'                                                                         
+>>> words2.first()
+['hello', 'world']
+```
+### 伪集合操作
+```
+>>> rdd1 = sc.parallelize({"coffee", "coffee", "panda", "monkey", "tea"})
+>>> rdd2 = sc.parallelize({"coffee", "monkey", "kitty"})
+>>> rdd1.distinct().collect()
+['panda', 'coffee', 'tea', 'monkey']
+>>> rdd1.union(rdd2).collect()
+['panda', 'coffee', 'monkey', 'tea', 'coffee', 'monkey', 'kitty']
+>>> rdd1
+ParallelCollectionRDD[5] at readRDDFromFile at PythonRDD.scala:289
+>>> rdd1.intersection(rdd2).collect()
+['coffee', 'monkey']
+>>> rdd1.subtract(rdd2).collect()
+['panda', 'tea']
+```
+可以看出集合中可以包含重复元素，当然可以通过distinct方法去重。也可以计算两个RDD的笛卡尔积：
+```
+>>> rdd1.collect()
+['panda', 'coffee', 'monkey', 'tea']
+>>> rdd2.collect()
+['coffee', 'monkey', 'kitty']
+>>> rdd1.cartesian(rdd2).collect()
+[('panda', 'coffee'), ('panda', 'monkey'), ('panda', 'kitty'), ('coffee', 'coffee'), ('coffee', 'monkey'), ('coffee', 'kitty'), ('monkey', 'coffee'), ('monkey', 'monkey'), ('monkey', 'kitty'), ('tea', 'coffee'), ('tea', 'monkey'), ('tea', 'kitty')]
+```
+### reduce方法和aggregate方法
+行动方法中最常用的就是reduce方法，该方法接受一个函数作为参数，这个函数要操作两个相同元素类型的RDD数据并返回一个相同类型的新元素，下面是使用reduce求和的操作：
+```
+sum = rdd.reduce(lambda x, y : x + y)
+```
+reduce方法返回的是相同类型的元素，如果要返回不同元素的类型就要用到aggregate方法了。下面是计算平均值的一个例子
+```
+sumCount = nums.aggregate((0, 0).
+                          (lambda acc, value: (acc[0] + value, acc[1] + 1),
+                          (lambda acc1, acc2: (acc1[0] + acc2[0], acc[1] + acc2[1]))))
+return sumCount[0] / float(sumCount[1])
+```
+上述代码中有两个加法器，第一个在节点内进行累加，第二个对各个节点数据进行累加.
