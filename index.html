@@ -94,16 +94,56 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>球谐投影的作用是把定义在球面上的函数(比如光照分布、环境贴图)压缩成一组系数，从而高效地存储、重建和计算该函数。如果你学习过有关函数的级数展开的理论，那么球谐投影对你来说是个非常容易理解的东西。</p>
-<p>我们知道空间中的任意一个向量$\bm{x}$，可以表示为空间中任意一组基向量$\bm{b}_i$($i&#x3D;0,1,…n-1$)的线性组合，即：<br>$$<br>\begin{align*}<br>\bm{x} &#x3D; k_0 \bm{b}<em>0 + k_1 \bm{b}<em>1 + \dots + k</em>{n-1} \bm{b}</em>{n-1}<br>\end{align*}<br>$$<br>对于函数，也有类似的定义<br>$$<br>\begin{align*}<br>f(\bm{x}) &#x3D; k_0 f_0(\bm{x}) + k_1 f_1(\bm{x}) + \dots<br>\end{align*}<br>$$<br>对于函数，通常等式右边的分解项有无穷多个，在实际使用过程中会截断使用。球谐投影的核心任务就是要把定义在球面上的函数分解成上述形式。</p>
-<p>为了完成分解，必须要找到一组函数基($f_1, f_2, \dots$)，球谐投影的函数基使用<strong>连带勒让德多项式</strong>(Associated Legendre<br>Polynomials)生成。这是无穷多个多项式的集合，而且这些多项式是正交的。连带勒让德多项式集合划分为如下形式：<br>$$<br>\begin{align*}<br>&amp; P_0^0(x) \<br>&amp; P_1^0(x), P_1^1(x)  \<br>&amp; P_2^0(x), P_2^1(x), P_2^2(x) \<br>&amp; \dots<br>\end{align*}<br>$$<br>通常用$P_l^m(x)$表示上述函数，$l$指示每一行函数，$m$指示每一列函数。这些函数之间满足如下的递推关系：<br>$$<br>\begin{align*}<br>&amp; (l - m)P_l^m &#x3D; x(2l - 1)P_{l-1}^m - {l + m - 1}P_{l - 2}^m \<br>&amp; P_m^m &#x3D; (-1)^m(2m-1)!!(1-x^2)^{m&#x2F;2} \<br>&amp; P_{m+1}^m &#x3D; x(2m + 1)P_m^m<br>\end{align*}<br>$$<br>根据以上递推关系可以很容易计算出各个多项式在指定点的值。</p>
-<p>定义在单位球面上的球谐函数可定义为如下形式：<br>$$<br>y_l^m(\theta, \varphi) &#x3D;<br>\begin{cases}<br>\sqrt{2} K_l^m \cos(m\varphi) P_l^m(\cos\theta), &amp; m &gt; 0 \<br>\sqrt{2} K_l^m \sin(-m\varphi) P_l^{-m}(\cos\theta), &amp; m &lt; 0 \<br>K_i^0 P_i^0(\cos\theta), &amp; m &#x3D; 0<br>\end{cases}<br>$$<br>其中$K_l^m$定义如下<br>$$<br>\begin{align*}<br>K_l^m &#x3D; \sqrt{\frac{(2l+1)}{4 \pi} \frac{(l-|m|)!}{(l+|m|)!}}<br>\end{align*}<br>$$<br>上述公式中的$\theta$和$\phi$分别为球面坐标中的极角和方位角。由于采用的是球面坐标，在计算时需要把空间坐标转换为球面坐标。可以注意到球谐函数中的$m$可以为负值，$m$的取值为$-l &lt;&#x3D; m &lt;&#x3D; l$。</p>
-<p>球谐函数在以$&lt;f,g&gt;&#x3D;\int_0^{2\pi}\int_0^{\pi}fg d\theta d\varphi$定义的内积空间中单位正交的。一般使用以下格式表示球谐函数：<br>$$<br>\begin{align*}<br>y_i(\theta,\varphi)&#x3D;y_l^m(\theta,\varphi), i&#x3D;l(l+1)m<br>\end{align*}<br>$$<br>现在已经得到了球谐函数，而且这一组函数还是单位正交的，那么把任意一个函数表示为这组函数的线性组合就是一件非常容易的事情了，只需要把待分解的函数向各个基函数投影得到系数，然后再线性组合起来就行了，如下：<br>$$<br>\tilde{f} &#x3D; \Sigma_{l&#x3D;0}^{\infty} \Sigma_{-l}^lc_l^m y_l^m<br>$$<br>其中<br>$$<br>c_l^m &#x3D; \int_s \tilde{f} y_l^m ds<br>$$<br>这里的$s$表示积分区域。</p>
+<p>我们知道空间中的任意一个向量$\bm{x}$，可以表示为空间中任意一组基向量$\bm{b}_i$($i=0,1,…n-1$)的线性组合，即：</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+\bm{x} = k_0 \bm{b}_0 + k_1 \bm{b}_1 + \dots + k_{n-1} \bm{b}_{n-1}
+\end{align*}</script><p>对于函数，也有类似的定义</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+f(\bm{x}) = k_0 f_0(\bm{x}) + k_1 f_1(\bm{x}) + \dots
+\end{align*}</script><p>对于函数，通常等式右边的分解项有无穷多个，在实际使用过程中会截断使用。球谐投影的核心任务就是要把定义在球面上的函数分解成上述形式。</p>
+<p>为了完成分解，必须要找到一组函数基($f_1, f_2, \dots$)，球谐投影的函数基使用<strong>连带勒让德多项式</strong>(Associated Legendre<br>Polynomials)生成。这是无穷多个多项式的集合，而且这些多项式是正交的。连带勒让德多项式集合划分为如下形式：</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+& P_0^0(x) \\
+& P_1^0(x), P_1^1(x)  \\
+& P_2^0(x), P_2^1(x), P_2^2(x) \\
+& \dots
+\end{align*}</script><p>通常用$P_l^m(x)$表示上述函数，$l$指示每一行函数，$m$指示每一列函数。这些函数之间满足如下的递推关系：</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+& (l - m)P_l^m = x(2l - 1)P_{l-1}^m - {l + m - 1}P_{l - 2}^m \\
+& P_m^m = (-1)^m(2m-1)!!(1-x^2)^{m/2} \\
+& P_{m+1}^m = x(2m + 1)P_m^m
+\end{align*}</script><p>根据以上递推关系可以很容易计算出各个多项式在指定点的值。</p>
+<p>定义在单位球面上的球谐函数可定义为如下形式：</p>
+<script type="math/tex; mode=display">
+y_l^m(\theta, \varphi) =
+\begin{cases} 
+\sqrt{2} K_l^m \cos(m\varphi) P_l^m(\cos\theta), & m > 0 \\
+\sqrt{2} K_l^m \sin(-m\varphi) P_l^{-m}(\cos\theta), & m < 0 \\
+K_i^0 P_i^0(\cos\theta), & m = 0
+\end{cases}</script><p>其中$K_l^m$定义如下</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+K_l^m = \sqrt{\frac{(2l+1)}{4 \pi} \frac{(l-|m|)!}{(l+|m|)!}}
+\end{align*}</script><p>上述公式中的$\theta$和$\phi$分别为球面坐标中的极角和方位角。由于采用的是球面坐标，在计算时需要把空间坐标转换为球面坐标。可以注意到球谐函数中的$m$可以为负值，$m$的取值为$-l &lt;= m &lt;= l$。</p>
+<p>球谐函数在以$<f,g>=\int_0^{2\pi}\int_0^{\pi}fg d\theta d\varphi$定义的内积空间中单位正交的。一般使用以下格式表示球谐函数：</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+y_i(\theta,\varphi)=y_l^m(\theta,\varphi), i=l(l+1)m
+\end{align*}</script><p>现在已经得到了球谐函数，而且这一组函数还是单位正交的，那么把任意一个函数表示为这组函数的线性组合就是一件非常容易的事情了，只需要把待分解的函数向各个基函数投影得到系数，然后再线性组合起来就行了，如下：</p>
+<script type="math/tex; mode=display">
+\tilde{f} = \Sigma_{l=0}^{\infty} \Sigma_{-l}^lc_l^m y_l^m</script><p>其中</p>
+<script type="math/tex; mode=display">
+c_l^m = \int_s \tilde{f} y_l^m ds</script><p>这里的$s$表示积分区域。</p>
 <p>至此，我们就把一个定义在球面上的函数使用球谐函数进行了分解(球谐投影)。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/04/17/sh_project/" data-id="cmoeeeu3a0000ogyb8aokb14w" data-title="球谐投影" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/04/17/sh_project/" data-id="cmoeetu0w00008syb3hu6f0li" data-title="球谐投影" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
