@@ -32,3 +32,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
           publish_branch: gh-pages  # 部署到 gh-pages 分支
+          user_name: 'SmileShineMe' # 替换为你的 GitHub 用户名
+          user_email: 'luohao.q@outlook.com' # 替换为你的 GitHub 邮箱
